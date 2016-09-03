@@ -14,6 +14,11 @@ public class WayAgent : MonoBehaviour
     private const float ThresholdDistanceToEnd = 0.2f;
 
     /// <summary>
+    /// Max distance when raycast test in front
+    /// </summary>
+    private const float MaxRaycastDistanceInFront = 10.0f;
+
+    /// <summary>
     /// The start point of current segment we are in
     /// </summary>
     public WayPoint StartPoint { get; set; }
@@ -32,6 +37,8 @@ public class WayAgent : MonoBehaviour
     /// Distance to the end point
     /// </summary>
     public float Distance { get; private set; }
+
+    private LayerMask m_VehicleLayerMask;
 
     /// <summary>
     /// Update current position within the path of the way
@@ -68,7 +75,7 @@ public class WayAgent : MonoBehaviour
         Direction = vecToEnd.normalized;
         Distance = vecToEnd.magnitude;
     }
-    
+
     /// <summary>
     /// Move forward in suggested direction
     /// </summary>
@@ -106,12 +113,30 @@ public class WayAgent : MonoBehaviour
     }
 
     /// <summary>
-    /// Find 
+    /// Find the vehicle in front of us
     /// </summary>
-    /// <returns></returns>
-    public WayAgent ViechleInFront()
+    /// <returns>the vehicle in front of us. returns null if there is not</returns>
+    public bool VehicleInFront(out float distance, out WayAgent agent)
     {
-        return null;
+        RaycastHit hitInfo;
+        if (Physics.Raycast(transform.position + Vector3.up, transform.forward, out hitInfo, MaxRaycastDistanceInFront, m_VehicleLayerMask))
+        {
+            agent = hitInfo.transform.GetComponent<WayAgent>();
+            if (null != agent)
+            {
+                distance = hitInfo.distance;
+                return true;
+            }
+        }
+
+        distance = float.MaxValue;
+        agent = null;
+        return false;
+    }
+
+    void Awake()
+    {
+        m_VehicleLayerMask = LayerMask.GetMask("Vehicle");
     }
 
     void OnEnable()
