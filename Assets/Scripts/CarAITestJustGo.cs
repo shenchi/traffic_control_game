@@ -36,11 +36,11 @@ public class CarAITestJustGo : MonoBehaviour
         float distInFront;
         if (agent.VehicleInFront(out distInFront, out agentInFront))
         {
-            return distInFront < 6;
+            return distInFront < 4;
         }
 
         // Check that if we are far enough from next point or the traffic light is green
-        return agent.Distance < 4 && (agent.GetCurrentTrafficLight() != TrafficLight.LightType.SteadyGreen);
+        return agent.Distance < 3 && (agent.GetCurrentTrafficLight() != TrafficLight.LightType.SteadyGreen);
     }
 
     void Gas()
