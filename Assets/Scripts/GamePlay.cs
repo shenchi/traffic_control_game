@@ -12,18 +12,50 @@ public class GamePlay : MonoBehaviour
     public Camera m_Camera;
 
     /// <summary>
+    /// Time duration for eath level
+    /// </summary>
+    public float RoundTime;
+
+    /// <summary>
     /// LayerMask for objects that response to user clicks
     /// </summary>
     public LayerMask m_LayerMaskForClick;
 
+    /// <summary>
+    /// A list of car spawn points in the level
+    /// </summary>
+    public GameObject[] spawner;
+
+    /// <summary>
+    /// The maximum amount of cars in game at a given time
+    /// </summary>
+    public int maxCarCount = 0;
+
+    /// <summary>
+    /// The top number of cars for each level (so that at one time the maximum amount of cars won't increase)
+    /// </summary>
+    public int topCarCount = 30;
+
+    /// <summary>
+    /// The number of cars currently in the level
+    /// </summary>
+    public int carCount = 0;
+
+    /// <summary>
+    /// The number of spawners
+    /// </summary>
+    public int spawnerCount;
+
     void Awake()
     {
         DontDestroyOnLoad(gameObject);
+        spawner = GameObject.FindGameObjectsWithTag("spawner");
     }
 
     void Start()
     {
-
+        spawnerCount = spawner.Length;
+        Random.InitState((int)Time.time);
     }
 
     void Update()
@@ -41,5 +73,20 @@ public class GamePlay : MonoBehaviour
                 }
             }
         }
+
+        if (maxCarCount <= topCarCount)
+        {
+            maxCarCount = (int)Time.deltaTime;
+        }
+
+        if(carCount <= maxCarCount)
+        {
+            spawner[(int)Random.Range(0, spawnerCount - 0.1f)].GetComponent<VehicleSpawner>().spawnVehicle();
+        }
+    }
+
+    void onVehicleDestoried()
+    {
+
     }
 }
