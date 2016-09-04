@@ -26,7 +26,7 @@ public class GamePlay : MonoBehaviour
     /// <summary>
     /// A list of car spawn points in the level
     /// </summary>
-    public GameObject[] spawner;
+    public GameObject[] spawners;
 
     /// <summary>
     /// The maximum amount of cars in game at a given time
@@ -36,7 +36,7 @@ public class GamePlay : MonoBehaviour
     /// <summary>
     /// The top number of cars for each level (so that at one time the maximum amount of cars won't increase)
     /// </summary>
-    public int topCarCount = 30;
+    public int topCarCount = 0;
 
     /// <summary>
     /// The number of cars currently in the level
@@ -52,13 +52,14 @@ public class GamePlay : MonoBehaviour
     {
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        spawner = GameObject.FindGameObjectsWithTag("spawner");
+        spawners = GameObject.FindGameObjectsWithTag("spawner");
     }
 
     void Start()
     {
-        spawnerCount = spawner.Length;
+        spawnerCount = spawners.Length;
         Random.InitState((int)Time.time);
+        topCarCount = 10;
     }
 
     void Update()
@@ -79,13 +80,17 @@ public class GamePlay : MonoBehaviour
 
         if (maxCarCount <= topCarCount)
         {
-            maxCarCount = (int)Time.realtimeSinceStartup;
+            maxCarCount = (int)(Time.realtimeSinceStartup * 0.5f);
         }
 
-        if(carCount <= maxCarCount)
+        if (carCount <= maxCarCount)
         {
-            spawner[(int)Random.Range(0, spawnerCount - 0.1f)].GetComponent<VehicleSpawner>().spawnVehicle();
-            carCount++;
+            var spawner = spawners[(int)Random.Range(0, spawnerCount - 0.1f)].GetComponent<VehicleSpawner>();
+            if (spawner.CanSpawn)
+            {
+                spawner.spawnVehicle();
+                carCount++;
+            }
         }
 
         print("maxCarCount: " + maxCarCount + " carCount" + carCount);
