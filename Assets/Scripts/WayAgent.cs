@@ -19,6 +19,11 @@ public class WayAgent : MonoBehaviour
     private const float MaxRaycastDistanceInFront = 10.0f;
 
     /// <summary>
+    /// If a vehicle is still alive on the way
+    /// </summary>
+    public bool IsAlive { get; private set; }
+
+    /// <summary>
     /// The start point of current segment we are in
     /// </summary>
     public WayPoint StartPoint { get; set; }
@@ -50,6 +55,12 @@ public class WayAgent : MonoBehaviour
             Direction = Vector3.zero;
             Distance = 0;
             return;
+        }
+
+        if (null != StartPoint as EndPoint)
+        {
+            IsAlive = false;
+            Destroy(gameObject);
         }
 
         if (null == EndPoint)
@@ -137,6 +148,7 @@ public class WayAgent : MonoBehaviour
     void Awake()
     {
         m_VehicleLayerMask = LayerMask.GetMask("Vehicle");
+        IsAlive = true;
     }
 
     void OnEnable()
