@@ -93,6 +93,6 @@ public class GamePlay : MonoBehaviour
 
     public void OnVehicleDestoried()
     {
-
+        carCount--;
     }
 }
