@@ -170,7 +170,7 @@ public class WayAgent : MonoBehaviour
     void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.GetComponent<WayAgent>() != null) {
-            Time.timeScale = 0;
+            GamePlay.Instance.OnVehicleCollision();
         }
     }
 

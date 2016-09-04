@@ -26,37 +26,41 @@ public class GamePlay : MonoBehaviour
     /// <summary>
     /// A list of car spawn points in the level
     /// </summary>
-    public GameObject[] spawners;
+    private GameObject[] spawners;
 
     /// <summary>
     /// The maximum amount of cars in game at a given time
     /// </summary>
-    public int maxCarCount = 0;
+    private int maxCarCount = 0;
 
     /// <summary>
     /// The top number of cars for each level (so that at one time the maximum amount of cars won't increase)
     /// </summary>
-    public int topCarCount = 0;
+    private int topCarCount = 0;
 
     /// <summary>
     /// The number of cars currently in the level
     /// </summary>
-    public int carCount = 0;
+    private int carCount = 0;
 
     /// <summary>
     /// The number of spawners
     /// </summary>
-    public int spawnerCount;
+    private int spawnerCount;
+
+    private bool gameOver;
+    private float timeSinceLevelStart;
 
     void Awake()
     {
         Instance = this;
-        DontDestroyOnLoad(gameObject);
         spawners = GameObject.FindGameObjectsWithTag("spawner");
     }
 
     void Start()
     {
+        gameOver = false;
+        timeSinceLevelStart = 0.0f;
         spawnerCount = spawners.Length;
         Random.InitState((int)Time.time);
         topCarCount = 10;
@@ -64,6 +68,8 @@ public class GamePlay : MonoBehaviour
 
     void Update()
     {
+        timeSinceLevelStart += Time.deltaTime;
+
         if (Input.GetMouseButtonUp(0))
         {
             Ray ray = m_Camera.ScreenPointToRay(Input.mousePosition);
@@ -80,7 +86,7 @@ public class GamePlay : MonoBehaviour
 
         if (maxCarCount <= topCarCount)
         {
-            maxCarCount = (int)(Time.realtimeSinceStartup * 0.5f);
+            maxCarCount = (int)(timeSinceLevelStart * 0.5f);
         }
 
         if (carCount <= maxCarCount)
@@ -96,8 +102,31 @@ public class GamePlay : MonoBehaviour
         print("maxCarCount: " + maxCarCount + " carCount" + carCount);
     }
 
+    public void OnVehicleCollision()
+    {
+        Time.timeScale = 0;
+        gameOver = true;
+    }
+
     public void OnVehicleDestoried()
     {
         carCount--;
+    }
+
+    private Rect m_LabelRect = new Rect(10, 10, 300, 300);
+    private Rect m_ButtonRect = new Rect(10, 40, 60, 20);
+
+    void OnGUI()
+    {
+        GUI.Label(m_LabelRect, timeSinceLevelStart.ToString());
+
+        if (gameOver)
+        {
+            if (GUI.Button(m_ButtonRect, "Restart"))
+            {
+                Time.timeScale = 1.0f;
+                Application.LoadLevel(0);
+            }
+        }
     }
 }
