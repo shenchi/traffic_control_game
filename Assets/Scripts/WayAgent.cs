@@ -167,4 +167,11 @@ public class WayAgent : MonoBehaviour
         UpdateWayPosition();
     }
 
+    void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.GetComponent<WayAgent>() != null) {
+            Time.timeScale = 0;
+        }
+    }
+
 }

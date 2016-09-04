@@ -37,7 +37,11 @@ public class CarAITestJustGo : MonoBehaviour
         bool stopForCar = false;
         if (agent.VehicleInFront(out distInFront, out agentInFront))
         {
-            stopForCar = (distInFront < 4);
+            
+            if (Vector3.Dot(agentInFront.Direction, agent.Direction) > 0.98)
+            {
+                stopForCar = (distInFront < 4);
+            }
         }
         // Check that if we are far enough from next point or the traffic light is green
         return ((agent.GetCurrentTrafficLight() != TrafficLight.LightType.SteadyGreen) && agent.Distance < 3) || stopForCar;
