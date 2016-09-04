@@ -6,6 +6,8 @@ using System.Collections;
 /// </summary>
 public class GamePlay : MonoBehaviour
 {
+    public static GamePlay Instance { get; private set; }
+
     /// <summary>
     /// The main camera in the scene
     /// </summary>
@@ -48,6 +50,7 @@ public class GamePlay : MonoBehaviour
 
     void Awake()
     {
+        Instance = this;
         DontDestroyOnLoad(gameObject);
         spawner = GameObject.FindGameObjectsWithTag("spawner");
     }
@@ -88,7 +91,7 @@ public class GamePlay : MonoBehaviour
         print("maxCarCount: " + maxCarCount + " carCount" + carCount);
     }
 
-    void onVehicleDestoried()
+    public void OnVehicleDestoried()
     {
 
     }

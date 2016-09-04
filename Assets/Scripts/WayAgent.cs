@@ -60,6 +60,7 @@ public class WayAgent : MonoBehaviour
         if (null != StartPoint as EndPoint)
         {
             IsAlive = false;
+            GamePlay.Instance.OnVehicleDestoried();
             Destroy(gameObject);
         }
 
