@@ -76,13 +76,16 @@ public class GamePlay : MonoBehaviour
 
         if (maxCarCount <= topCarCount)
         {
-            maxCarCount = (int)Time.deltaTime;
+            maxCarCount = (int)Time.realtimeSinceStartup;
         }
 
         if(carCount <= maxCarCount)
         {
             spawner[(int)Random.Range(0, spawnerCount - 0.1f)].GetComponent<VehicleSpawner>().spawnVehicle();
+            carCount++;
         }
+
+        print("maxCarCount: " + maxCarCount + " carCount" + carCount);
     }
 
     void onVehicleDestoried()
