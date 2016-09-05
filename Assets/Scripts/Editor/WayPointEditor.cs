@@ -147,6 +147,11 @@ public class WayPointEditor : Editor
             }
         }
 
+        if (outboundMappingProp.arraySize != outboundProp.arraySize)
+        {
+            changed = true;
+        }
+
         if (changed)
         {
             outboundMappingProp.ClearArray();

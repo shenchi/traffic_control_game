@@ -129,7 +129,7 @@ public class WayPoint : MonoBehaviour
             Gizmos.color = lineColor;
             for (int i = 0; i < m_Outbounds.Count; i++)
             {
-                if (m_OutboundPathMapping[i] < 0 || null == m_CurvePath || null == m_CurvePath[m_OutboundPathMapping[i]])
+                if (null == m_OutboundPathMapping || m_OutboundPathMapping[i] < 0 || null == m_CurvePath || null == m_CurvePath[m_OutboundPathMapping[i]])
                 {
                     Gizmos.DrawLine(transform.position, m_Outbounds[i].transform.position);
                 }
