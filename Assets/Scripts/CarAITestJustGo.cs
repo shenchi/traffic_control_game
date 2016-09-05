@@ -19,7 +19,7 @@ public class CarAITestJustGo : MonoBehaviour
     void Awake()
     {
         agent = GetComponent<WayAgent>();
-
+        agent.WaySelectCallback = WaySelect;
         //iniTime = Time.realtimeSinceStartup;
     }
 
@@ -82,6 +82,10 @@ public class CarAITestJustGo : MonoBehaviour
 
         float dist = speed * Time.deltaTime;
         agent.MoveForward(dist);
-        agent.AdjustToCurrentDirection();
+    }
+
+    int WaySelect(string label, int count)
+    {
+        return count > 0 ? count - 1 : 0;
     }
 }

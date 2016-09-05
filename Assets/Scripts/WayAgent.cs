@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// Agent for objects in the way. 
 /// Contains information relating to locomotion, and physical calculations
 /// Supposed to be the interface between AI and path-finding
 /// </summary>
+[RequireComponent(typeof(BoxCollider))]
 public class WayAgent : MonoBehaviour
 {
     /// <summary>
@@ -17,6 +19,14 @@ public class WayAgent : MonoBehaviour
     /// Max distance when raycast test in front
     /// </summary>
     private const float MaxRaycastDistanceInFront = 10.0f;
+
+    /// <summary>
+    /// A delegate for AI script to choose way
+    /// </summary>
+    /// <param name="label">labal of the way point we just arrived</param>
+    /// <param name="numOfWay">count of way that you can choose from</param>
+    /// <returns>the way you choose, from 0 to numOfWay - 1 </returns>
+    public delegate int WaySelectDelegate(string label, int numOfWay);
 
     /// <summary>
     /// If a vehicle is still alive on the way
@@ -43,7 +53,23 @@ public class WayAgent : MonoBehaviour
     /// </summary>
     public float Distance { get; private set; }
 
+    /// <summary>
+    /// Length of this vehicle (collider box);
+    /// </summary>
+    public float VehicleLength { get; private set; }
+
+    /// <summary>
+    /// A callback for user to choose way when arriving a way point with more than 1 outbound.
+    /// the first outbound in the waypoint will be chosen if left this callback null.
+    /// </summary>
+    public WaySelectDelegate WaySelectCallback { get; set; }
+
     private LayerMask m_VehicleLayerMask;
+
+    private List<Vector3> m_CurvePath = null;
+    private List<float> m_CurveLengthRemain = null;
+    private float m_CurveLength = 0.0f;
+    private int m_CurveSegmentId = -1;
 
     /// <summary>
     /// Update current position within the path of the way
@@ -60,13 +86,16 @@ public class WayAgent : MonoBehaviour
         if (null != StartPoint as EndPoint)
         {
             IsAlive = false;
-            GamePlay.Instance.OnVehicleDestoried();
+            if (null != GamePlay.Instance)
+            {
+                GamePlay.Instance.OnVehicleDestoried();
+            }
             Destroy(gameObject);
         }
 
         if (null == EndPoint)
         {
-            EndPoint = StartPoint.NextWayPoint();
+            SelectNextPoint();
 
             if (null == EndPoint) // we might arrive the final point
             {
@@ -81,11 +110,44 @@ public class WayAgent : MonoBehaviour
         if (vecToEnd.magnitude < ThresholdDistanceToEnd)
         {
             StartPoint = EndPoint;
-            EndPoint = StartPoint.NextWayPoint();
+            SelectNextPoint();
         }
 
-        Direction = vecToEnd.normalized;
-        Distance = vecToEnd.magnitude;
+        if (null == m_CurvePath)
+        {
+            Direction = vecToEnd.normalized;
+            Distance = vecToEnd.magnitude;
+        }
+        else
+        {
+            Vector3 vecToSegEnd = m_CurvePath[m_CurveSegmentId + 1] - transform.position;
+            Direction = vecToSegEnd.normalized;
+            Distance = vecToSegEnd.magnitude + m_CurveLengthRemain[m_CurveSegmentId + 1];
+        }
+    }
+
+    void SelectNextPoint()
+    {
+        int selectedOutbound = null != WaySelectCallback ? WaySelectCallback(StartPoint.m_Label, StartPoint.m_Outbounds.Count) : 0;
+        EndPoint = StartPoint.NextWayPoint(selectedOutbound);
+        m_CurvePath = StartPoint.GetCurvePathByOutboundIdx(selectedOutbound);
+        m_CurveSegmentId = (null != m_CurvePath ? 0 : -1);
+        m_CurveLength = 0.0f;
+        if (null != m_CurvePath)
+        {
+            m_CurveLengthRemain = new List<float>();
+            m_CurveLengthRemain.Add(0.0f);
+            for (int i = m_CurvePath.Count - 2; i >= 0; i--)
+            {
+                m_CurveLength += (m_CurvePath[i + 1] - m_CurvePath[i]).magnitude;
+                m_CurveLengthRemain.Insert(0, m_CurveLength);
+            }
+            transform.position = m_CurvePath[0];
+        }
+        else
+        {
+            m_CurveLengthRemain = null;
+        }
     }
 
     /// <summary>
@@ -94,17 +156,39 @@ public class WayAgent : MonoBehaviour
     /// <param name="distance">Amount of distance to move</param>
     public void MoveForward(float distance)
     {
-        transform.position += Direction * distance;
-    }
+        if (null == m_CurvePath)
+        {
+            transform.position += Direction * distance;
+            if (Direction != Vector3.zero)
+                transform.forward = Direction;
+        }
+        else
+        {
+            float dist = distance;
+            float distRemain = (m_CurvePath[m_CurveSegmentId + 1] - transform.position).magnitude;
+            int targetSegId = m_CurveSegmentId;
+            while (dist > distRemain && targetSegId < m_CurvePath.Count - 2)
+            {
+                targetSegId++;
+                dist -= distRemain;
+                distRemain = (m_CurvePath[targetSegId + 1] - m_CurvePath[targetSegId]).magnitude;
+            }
+            
+            Vector3 dir = (m_CurvePath[targetSegId + 1] - m_CurvePath[targetSegId]).normalized;
 
-    /// <summary>
-    /// Adjust this vehicle (to which this agent attached) to the current suggested direction.
-    /// </summary>
-    public void AdjustToCurrentDirection()
-    {
-        // TODO: a interpolation needed
-        if (Direction != Vector3.zero)
-            transform.forward = Direction;
+            Vector3 targetPos = m_CurveSegmentId == targetSegId ? 
+                transform.position + dist * dir :
+                (m_CurvePath[targetSegId] + dist * dir);
+            
+            m_CurveSegmentId = targetSegId;
+
+            Vector3 tailPos = transform.position - transform.forward * VehicleLength;
+            
+            Vector3 targetDir = (targetPos - (transform.position + tailPos) * 0.5f).normalized;
+
+            transform.position = targetPos;
+            transform.forward = targetDir;
+        }
     }
 
     /// <summary>
@@ -150,6 +234,7 @@ public class WayAgent : MonoBehaviour
     {
         m_VehicleLayerMask = LayerMask.GetMask("Vehicle");
         IsAlive = true;
+        VehicleLength = (GetComponent<BoxCollider>()).size.z;
     }
 
     void OnEnable()
@@ -169,7 +254,8 @@ public class WayAgent : MonoBehaviour
 
     void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.GetComponent<WayAgent>() != null) {
+        if (other.gameObject.GetComponent<WayAgent>() != null && GamePlay.Instance != null)
+        {
             GamePlay.Instance.OnVehicleCollision();
         }
     }
