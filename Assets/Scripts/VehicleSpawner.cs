@@ -9,7 +9,7 @@ public class VehicleSpawner : MonoBehaviour
     /// </summary>
     public WayAgent[] m_Prefabs;
 
-    public float m_SpawnCoolingDown = 2.0f;
+    public float m_SpawnCoolingDown = 1.5f;
 
     private float m_CoolingDownTimer = 0;
 

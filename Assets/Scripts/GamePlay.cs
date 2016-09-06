@@ -63,7 +63,7 @@ public class GamePlay : MonoBehaviour
         timeSinceLevelStart = 0.0f;
         spawnerCount = spawners.Length;
         Random.InitState((int)Time.time);
-        topCarCount = 10;
+        topCarCount = 16;
     }
 
     void Update()
