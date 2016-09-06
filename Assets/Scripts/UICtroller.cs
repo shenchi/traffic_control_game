@@ -40,7 +40,7 @@ public class UICtroller : MonoBehaviour
 
                 }
             }
-            time.GetComponent<Text>().text = "Time: " + ((int)GameObject.Find("GamePlay").GetComponent<GamePlay>().getGameTime()).ToString();
+            time.GetComponent<Text>().text = "Time: " + ((int)GameObject.Find("GamePlay").GetComponent<GamePlay>().getGameTime()).ToString()+"s";
         }
     }
     public void start()
