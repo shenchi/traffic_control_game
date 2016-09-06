@@ -55,6 +55,7 @@ public class GamePlay : MonoBehaviour
     {
         Instance = this;
         spawners = GameObject.FindGameObjectsWithTag("spawner");
+        Time.timeScale = 1.0f;
     }
 
     void Start()
@@ -98,7 +99,7 @@ public class GamePlay : MonoBehaviour
                 carCount++;
             }
         }
-        if (timeSinceLevelStart >= 5) {
+        if (timeSinceLevelStart >= 60) {
             Time.timeScale = 0;
             GameObject.Find("UICtrl").GetComponent<UICtroller>().win();
         }
