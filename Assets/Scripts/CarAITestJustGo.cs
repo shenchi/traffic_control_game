@@ -38,7 +38,7 @@ public class CarAITestJustGo : MonoBehaviour
         if (agent.VehicleInFront(out distInFront, out agentInFront))
         {
             
-            if (Vector3.Dot(agentInFront.Direction, agent.Direction) > 0.98)
+            if (Vector3.Dot(agentInFront.Direction, agent.Direction) > 0.98|| Vector3.Dot(agentInFront.Direction, agent.Direction)<0.1)
             {
                 stopForCar = (distInFront < 4);
             }

@@ -98,13 +98,16 @@ public class GamePlay : MonoBehaviour
                 carCount++;
             }
         }
+        if (timeSinceLevelStart >= 5) {
+            Time.timeScale = 0;
+            GameObject.Find("UICtrl").GetComponent<UICtroller>().win();
+        }
 
-        print("maxCarCount: " + maxCarCount + " carCount" + carCount);
     }
 
     public void OnVehicleCollision()
     {
-        Time.timeScale = 0;
+        GameObject.Find("UICtrl").GetComponent<UICtroller>().gameisover();
         gameOver = true;
     }
 
@@ -112,21 +115,9 @@ public class GamePlay : MonoBehaviour
     {
         carCount--;
     }
-
-    private Rect m_LabelRect = new Rect(10, 10, 300, 300);
-    private Rect m_ButtonRect = new Rect(10, 40, 60, 20);
-
-    void OnGUI()
-    {
-        GUI.Label(m_LabelRect, timeSinceLevelStart.ToString());
-
-        if (gameOver)
-        {
-            if (GUI.Button(m_ButtonRect, "Restart"))
-            {
-                Time.timeScale = 1.0f;
-                Application.LoadLevel(0);
-            }
-        }
+    public float getGameTime() {
+        return timeSinceLevelStart;
     }
+
+
 }
