@@ -62,7 +62,7 @@ public class GamePlay : MonoBehaviour
         gameOver = false;
         timeSinceLevelStart = 0.0f;
         spawnerCount = spawners.Length;
-        Random.InitState((int)Time.time);
+        Random.InitState((int)System.DateTime.Now.Ticks);
         topCarCount = 16;
     }
 
@@ -102,6 +102,7 @@ public class GamePlay : MonoBehaviour
             Time.timeScale = 0;
             GameObject.Find("UICtrl").GetComponent<UICtroller>().win();
         }
+
 
     }
 
