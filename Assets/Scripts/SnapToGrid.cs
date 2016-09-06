@@ -12,7 +12,7 @@ public class SnapToGrid : MonoBehaviour
     {
         if (!Application.isPlaying)
         {
-            transform.position = new Vector3(Mathf.Floor(transform.position.x), Mathf.Floor(transform.position.y), Mathf.Floor(transform.position.z)) + offset;
+            transform.localPosition = new Vector3(Mathf.Floor(transform.localPosition.x), Mathf.Floor(transform.localPosition.y), Mathf.Floor(transform.localPosition.z)) + offset;
         }
     }
 #endif
