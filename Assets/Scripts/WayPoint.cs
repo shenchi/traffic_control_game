@@ -10,7 +10,7 @@ public class WayPoint : MonoBehaviour
     /// <summary>
     /// Count of segment deviding a bezier curve
     /// </summary>
-    private const int BezierSegmentCount = 10;
+    private const int BezierSegmentCount = 20;
 
     /// <summary>
     /// List of all way points that the current one connected to. The 0th in the array should be the default one.
